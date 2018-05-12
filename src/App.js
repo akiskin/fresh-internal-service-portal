@@ -3,6 +3,8 @@ import './App.css';
 import Requests from './requests.js'
 import ClientLookup from './ClientLookup.js'
 
+import GlobalContext from './withGlobals.js'
+
 class App extends Component {
   state = {
     loggedIn: false,
@@ -13,6 +15,7 @@ class App extends Component {
 
   requestsSingleton = new Requests();
 
+  onInputFieldChange = (inputName) => (e) => this.setState({[inputName]: e.target.value})
 
   performLogin = async () => {
     
@@ -24,11 +27,18 @@ class App extends Component {
 
   render() {
     return (
-      <div className="App">
-        {this.state.loggedIn ? <WelcomeMessage /> : <LoginForm performLogin={this.performLogin} />}
-        
-        {this.state.currentView === 'clientLookup' && <ClientLookup />}
-      </div>
+      <GlobalContext.Provider value={this.requestsSingleton}>
+        <div className="App">
+          {this.state.loggedIn ? <WelcomeMessage /> : <LoginForm performLogin={this.performLogin}
+                                                                  username={this.state.username}
+                                                                  password={this.state.password}
+                                                                  onUsernameChange={this.onInputFieldChange("username")}
+                                                                  onPasswordChange={this.onInputFieldChange("password")}
+          />}
+          
+          {this.state.currentView === 'clientLookup' && <ClientLookup />}
+        </div>
+      </GlobalContext.Provider>
     );
   }
 }
@@ -38,13 +48,13 @@ const LoginForm = (props) =>
     <div className="form-group row">
       <label className="col-sm-2 col-form-label">Username</label>
       <div className="col-sm-10">
-        <input type="email" className="form-control" id="inputUsername" placeholder="Username" />
+        <input type="email" value={props.username} className="form-control" id="inputUsername" placeholder="Username" onChange={props.onUsernameChange}/>
       </div>
     </div>
     <div className="form-group row">
       <label className="col-sm-2 col-form-label">Password</label>
       <div className="col-sm-10">
-        <input type="password" className="form-control" id="inputPassword" placeholder="Password" />
+        <input type="password" value={props.password} className="form-control" id="inputPassword" placeholder="Password" onChange={props.onPasswordChange} />
       </div>
     </div>
 

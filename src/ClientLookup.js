@@ -1,22 +1,26 @@
 import React, { Component, Fragment } from 'react';
+import {withGlobals} from './withGlobals.js'
 
 class ClientLookup extends Component {
     state = {
         pattern: '',
         fetching: false,
         clients: [],
-        currentClientId: ''
+        currentClientId: '',
+        currentClientData: {}
     }
 
     onPatternChange = (e) => this.setState({pattern: e.target.value})
 
-    onSearch = () => {
+    onSearch = async () => {
 
         this.setState({fetching: true})
 
+        let response = await this.props.requests.clientlookup(this.state.pattern)
 
-        //Get clients
-        let clients = [{id: 'id1', name: 'name1'},{id: 'id2', name: 'name2'}]
+        console.log(response)
+
+        let clients = response['payload']
 
         this.setState({
             fetching: false,
@@ -24,8 +28,26 @@ class ClientLookup extends Component {
         })
     }
 
-    onSelectClient = (id) => () => {
-        this.setState({currentClientId: id})
+    onSelectClient = (id) => async () => {
+
+        console.log("Entered onSelectClient " + id)
+
+        let response = await this.props.requests.clientdbinfo(id)
+        
+        this.setState({
+            currentClientId: id,
+            currentClientData: response['payload']
+        })
+    }
+
+    onGetAccess = (id) => async () => {
+
+        console.log("Entered onGetAccess " + id)
+
+        let response = await this.props.requests.getaccess(id)
+        
+        this.onSelectClient(this.state.currentClientId)()
+
     }
 
     render() {
@@ -43,7 +65,16 @@ class ClientLookup extends Component {
             <div>
                 {this.state.clients.map(el => <SingleClient key={el.id} name={el.name} id={el.id} onSelectClient={this.onSelectClient} />)}
             </div>
-            {this.state.currentClientId && <ClientInfo client={this.state.clients.find((el) => el.id === this.state.currentClientId)}/>}
+
+            <div className="container">
+                {this.state.currentClientId && <ClientInfo 
+                                                    client={this.state.clients.find((el) => el.id === this.state.currentClientId)} 
+                                                    data={this.state.currentClientData} 
+                                                    onGetAccess={this.onGetAccess}
+                                                    />}
+            </div>
+
+
         </Fragment>)
     }
 
@@ -52,12 +83,40 @@ class ClientLookup extends Component {
 
 const SingleClient = (props) => 
     <span>
-        <button type="button" className="btn btn-light" onClick={props.onSelectClient(props.id)}>{props.id + '::' + props.name}</button>         
+        <button type="button" className="btn btn-light" onClick={props.onSelectClient(props.id)}>{props.name}</button>         
     </span>
 
 const ClientInfo = (props) =>
-    <div>
+    <Fragment>
         <h2>{props.client.name}</h2>
+        {props.data.map(el => <AppRow key={el.id} data={el} onGetAccess={props.onGetAccess(el.id)}/>)}
+    </Fragment>
+
+const AppRow = (props) =>
+    <div className="row">
+        <div className="col-3">
+            {props.data.name}
+        </div>
+        <div className="col-5">
+            {props.data.link}
+        </div>
+        <div className="col-2">
+            {props.data.accessGranted && <AccessLink appId={props.data.id} link={props.data.link}/>}
+        </div>
+        <div className="col-2">
+            {props.data.accessGranted ? 'Access till: ' + props.data.expiryDate : <NoAccess onGetAccess={props.onGetAccess} />}
+        </div>
     </div>
 
-export default ClientLookup;
+const AccessLink = withGlobals(props =>
+    <a href={props.link + "?N=" + props.requests.username + "&P=" + props.requests.password} className="btn btn-success">
+        Enter app
+    </a>)
+
+const NoAccess = (props) =>
+    <button className="btn btn-warning" onClick={props.onGetAccess}>
+        Get access (1 hour)
+    </button>
+
+
+export default withGlobals(ClientLookup);

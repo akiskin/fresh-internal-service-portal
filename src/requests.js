@@ -11,7 +11,8 @@ class Requests {
 
     login = async () => {
 
-        console.log('Entred login')
+        console.log('Entered login: ' + this.username)
+        
 
         let result, status;
     
@@ -36,6 +37,103 @@ class Requests {
         
         console.log('Login status: ' + status)
         return status === 200
+
+    }
+
+
+    clientlookup = async (pattern) => {
+
+        console.log('Entered clientlookup: ' + this.username)
+        
+
+        let result, status;
+    
+        try {
+            result = await axios.get(
+                API_URL + '/clientlookup',
+                {
+                    auth: {
+                        username: this.username,
+                        password: this.password
+                    },
+                    validateStatus: function (status) {
+                        return status >= 200;
+                    },
+                    params: {
+                        pattern: pattern
+                    }
+                }
+            )
+            status = result.status
+        } catch(e) {
+            console.log('EXPC: ' + e)
+        }
+    
+        return result.data
+
+    }  
+    
+    clientdbinfo = async (id) => {
+
+        console.log('Entered clientdbinfo: ' + this.username)
+        
+
+        let result, status;
+    
+        try {
+            result = await axios.get(
+                API_URL + '/clientdbinfo',
+                {
+                    auth: {
+                        username: this.username,
+                        password: this.password
+                    },
+                    validateStatus: function (status) {
+                        return status >= 200;
+                    },
+                    params: {
+                        id: id
+                    }
+                }
+            )
+            status = result.status
+        } catch(e) {
+            console.log('EXPC: ' + e)
+        }
+    
+        return result.data
+
+    }    
+
+    getaccess = async (id) => {
+
+        console.log('Entered getaccess: ' + this.username)
+        
+
+        let result, status;
+    
+        try {
+            result = await axios.get(
+                API_URL + '/getaccess',
+                {
+                    auth: {
+                        username: this.username,
+                        password: this.password
+                    },
+                    validateStatus: function (status) {
+                        return status >= 200;
+                    },
+                    params: {
+                        id: id
+                    }
+                }
+            )
+            status = result.status
+        } catch(e) {
+            console.log('EXPC: ' + e)
+        }
+    
+        return result.data.status === "ok"
 
     }
 
@@ -65,8 +163,6 @@ export async function login(username, password) {
         console.log('EXPC: ' + e)
     }
 
-    
-    console.log('Login status: ' + status)
     return status === 200
 
 }
