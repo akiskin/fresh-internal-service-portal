@@ -14,7 +14,16 @@ class ClientLookup extends Component {
 
     onSearch = async () => {
 
-        this.setState({fetching: true})
+        if (this.state.pattern.length <= 3) {
+            return false;
+        }
+
+        this.setState({
+            fetching: true,
+            clients: [],
+            currentClientId: '',
+            currentClientData: {}
+        })
 
         let response = await this.props.requests.clientlookup(this.state.pattern)
 
@@ -24,7 +33,7 @@ class ClientLookup extends Component {
 
         this.setState({
             fetching: false,
-            clients: clients
+            clients: Array.isArray(clients) ? clients : []
         })
     }
 
@@ -43,27 +52,44 @@ class ClientLookup extends Component {
     onGetAccess = (id) => async () => {
 
         console.log("Entered onGetAccess " + id)
-
+        
         let response = await this.props.requests.getaccess(id)
         
-        this.onSelectClient(this.state.currentClientId)()
+        if (response) {
+            setTimeout(this.refreshAfterAccessWasGranted, 5000)
+        }
 
+        
+
+    }
+
+    refreshAfterAccessWasGranted = () => {
+        this.onSelectClient(this.state.currentClientId)()
     }
 
     render() {
         return(
         <Fragment>
-            <form>
-                <div className="form-group row">
-                    <label className="col-sm-2 col-form-label">Client name (partial)</label>
-                    <div className="col-sm-10">
-                        <input type="text" className="form-control" value={this.state.pattern} onChange={this.onPatternChange}/>
-                    </div>
+            <div className="row">
+                <div className="col-3"></div>
+                <div className="col">
+                    <form>
+                        <div className="mt-3 mb-3">
+                            <h3>Client Search</h3>
+                            <small>Search client list by name (at least 4 symbols required)</small>
+                        </div>
+                        <div className="form-group row">
+                            <input type="text" className="form-control" value={this.state.pattern} onChange={this.onPatternChange}/>
+                         </div>
+                        <button type="button" className="btn btn-success" onClick={this.onSearch}>Search</button>
+                    </form>
                 </div>
-                <button type="button" className="btn btn-success" onClick={this.onSearch}>Search</button>
-            </form>
+                <div className="col-3"></div>
+            </div>
+
             <div>
-                {this.state.clients.map(el => <SingleClient key={el.id} name={el.name} id={el.id} onSelectClient={this.onSelectClient} />)}
+                {this.state.clients.length > 0 && <ClientsFoundHeader />}
+                {this.state.clients.length > 0 && this.state.clients.map(el => <SingleClient key={el.id} name={el.name} id={el.id} onSelectClient={this.onSelectClient} />)}
             </div>
 
             <div className="container">
@@ -81,30 +107,39 @@ class ClientLookup extends Component {
 
 }
 
+const ClientsFoundHeader = () =>
+    <div className="mt-3 mb-3">
+        <h3 className="mt-3">Clients Found</h3>
+        <small>Click on client name to see applications and request access</small>
+    </div>
+
 const SingleClient = (props) => 
     <span>
-        <button type="button" className="btn btn-light" onClick={props.onSelectClient(props.id)}>{props.name}</button>         
+        <button type="button" className="btn btn-outline-dark mr-1" onClick={props.onSelectClient(props.id)}>{props.name}</button>         
     </span>
 
 const ClientInfo = (props) =>
     <Fragment>
-        <h2>{props.client.name}</h2>
+        <div className="mt-3 mb-3">
+            <h3>{props.client.name}</h3>
+            <small>Showing client's current applications</small>
+        </div>
         {props.data.map(el => <AppRow key={el.id} data={el} onGetAccess={props.onGetAccess(el.id)}/>)}
     </Fragment>
 
 const AppRow = (props) =>
-    <div className="row">
+    <div className="row mb-2 pb-1 border-bottom">
         <div className="col-3">
-            {props.data.name}
+            <span className="align-middle">{props.data.name}</span>
         </div>
         <div className="col-5">
-            {props.data.link}
+            <span className="align-middle">{props.data.link}</span>
         </div>
         <div className="col-2">
             {props.data.accessGranted && <AccessLink appId={props.data.id} link={props.data.link}/>}
         </div>
         <div className="col-2">
-            {props.data.accessGranted ? 'Access till: ' + props.data.expiryDate : <NoAccess onGetAccess={props.onGetAccess} />}
+            {props.data.accessGranted ? <span className="align-middle">{'Access till: ' + props.data.expiryDate}</span> : <NoAccess onGetAccess={props.onGetAccess} />}
         </div>
     </div>
 
