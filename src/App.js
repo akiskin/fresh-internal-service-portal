@@ -2,21 +2,25 @@ import React, { Component } from 'react';
 import './App.css';
 import Requests from './requests.js'
 import ClientLookup from './ClientLookup.js'
+import AccessHistory from './AccessHistory.js'
 
 import GlobalContext from './withGlobals.js'
 
 class App extends Component {
   state = {
     loggedIn: false,
-    username: 'testsupport',
-    password: 'P@ssw0rd'
+    //username: 'testsupport',
+    //password: 'P@ssw0rd'
+    username: '',
+    password: ''
   }
 
   requestsSingleton = new Requests();
 
   onInputFieldChange = (inputName) => (e) => this.setState({[inputName]: e.target.value})
 
-  performLogin = async () => {
+  performLogin = async (e) => {
+    e.preventDefault()
     this.requestsSingleton.setCredentials(this.state.username, this.state.password)
     this.setState({loggedIn: await this.requestsSingleton.login()})
   }
@@ -37,6 +41,7 @@ class App extends Component {
           />}
           
           {this.state.loggedIn && <ClientLookup />}
+          {this.state.loggedIn && <AccessHistory />}
         </div>
       </GlobalContext.Provider>
     );
@@ -47,11 +52,11 @@ const LoginForm = (props) =>
   <div className="row">
     <div className="col-3"></div>
     <div className="col">
-      <form>
+      <form onSubmit={props.performLogin}>
         <div className="form-group row">
           <label className="col-sm-2 col-form-label">Username</label>
           <div className="col-sm-10">
-            <input type="email" value={props.username} className="form-control" id="inputUsername" placeholder="Username" onChange={props.onUsernameChange}/>
+            <input type="text" value={props.username} className="form-control" id="inputUsername" placeholder="Username" onChange={props.onUsernameChange}/>
           </div>
         </div>
         <div className="form-group row">
@@ -61,7 +66,7 @@ const LoginForm = (props) =>
           </div>
         </div>
 
-        <button type="button" className="btn btn-success" onClick={props.performLogin}>Login</button>
+        <button type="submit" className="btn btn-success">Login</button>
       </form>
     </div>
     <div className="col-3"></div>

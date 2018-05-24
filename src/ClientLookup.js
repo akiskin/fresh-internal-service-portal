@@ -7,12 +7,14 @@ class ClientLookup extends Component {
         fetching: false,
         clients: [],
         currentClientId: '',
-        currentClientData: {}
+        currentClientData: {},
+        gettingAccess: null
     }
 
     onPatternChange = (e) => this.setState({pattern: e.target.value})
 
-    onSearch = async () => {
+    onSearch = async (e) => {
+        e.preventDefault()
 
         if (this.state.pattern.length <= 3) {
             return false;
@@ -27,7 +29,7 @@ class ClientLookup extends Component {
 
         let response = await this.props.requests.clientlookup(this.state.pattern)
 
-        console.log(response)
+        //console.log(response)
 
         let clients = response['payload']
 
@@ -52,19 +54,23 @@ class ClientLookup extends Component {
     onGetAccess = (id) => async () => {
 
         console.log("Entered onGetAccess " + id)
+
+        this.setState({gettingAccess: id})
         
         let response = await this.props.requests.getaccess(id)
+        //let response = true
         
         if (response) {
-            setTimeout(this.refreshAfterAccessWasGranted, 5000)
+            setTimeout(this.refreshAfterAccessWasGranted, 20000)
+        } else {
+            this.setState({gettingAccess: null})
         }
-
-        
 
     }
 
     refreshAfterAccessWasGranted = () => {
         this.onSelectClient(this.state.currentClientId)()
+        this.setState({gettingAccess: null})
     }
 
     render() {
@@ -73,15 +79,15 @@ class ClientLookup extends Component {
             <div className="row">
                 <div className="col-3"></div>
                 <div className="col">
-                    <form>
+                    <form onSubmit={this.onSearch}>
                         <div className="mt-3 mb-3">
                             <h3>Client Search</h3>
                             <small>Search client list by name (at least 4 symbols required)</small>
                         </div>
                         <div className="form-group row">
-                            <input type="text" className="form-control" value={this.state.pattern} onChange={this.onPatternChange}/>
+                            <input type="text" className="form-control" value={this.state.pattern} onChange={this.onPatternChange} pattern=".{4,}" required title="4 characters minimum"/>
                          </div>
-                        <button type="button" className="btn btn-success" onClick={this.onSearch}>Search</button>
+                        <button type="submit" className="btn btn-success">Search</button>
                     </form>
                 </div>
                 <div className="col-3"></div>
@@ -97,10 +103,9 @@ class ClientLookup extends Component {
                                                     client={this.state.clients.find((el) => el.id === this.state.currentClientId)} 
                                                     data={this.state.currentClientData} 
                                                     onGetAccess={this.onGetAccess}
+                                                    gettingAccess={this.state.gettingAccess}
                                                     />}
             </div>
-
-
         </Fragment>)
     }
 
@@ -124,7 +129,7 @@ const ClientInfo = (props) =>
             <h3>{props.client.name}</h3>
             <small>Showing client's current applications</small>
         </div>
-        {props.data.map(el => <AppRow key={el.id} data={el} onGetAccess={props.onGetAccess(el.id)}/>)}
+        {props.data.filter(el => el.status === 1).map(el => <AppRow key={el.id} data={el} onGetAccess={props.onGetAccess(el.id)} spinner={el.id === props.gettingAccess}/>)}
     </Fragment>
 
 const AppRow = (props) =>
@@ -139,18 +144,18 @@ const AppRow = (props) =>
             {props.data.accessGranted && <AccessLink appId={props.data.id} link={props.data.link}/>}
         </div>
         <div className="col-2">
-            {props.data.accessGranted ? <span className="align-middle">{'Access till: ' + props.data.expiryDate}</span> : <NoAccess onGetAccess={props.onGetAccess} />}
+            {props.data.accessGranted ? <span className="align-middle">{'Access till: ' + (new Date(props.data.accessExpiryDate)).toLocaleDateString('en-GB', {hour: '2-digit', minute: '2-digit'})}</span> : <NoAccess onGetAccess={props.onGetAccess} spinner={props.spinner} />}
         </div>
     </div>
 
 const AccessLink = withGlobals(props =>
-    <a href={props.link + "?N=" + props.requests.username + "&P=" + props.requests.password} className="btn btn-success">
+    <a href={props.link + "?N=" + props.requests.username + "&P=" + props.requests.password} className="btn btn-success" target="_blank" rel="noopener noreferrer">
         Enter app
     </a>)
 
 const NoAccess = (props) =>
-    <button className="btn btn-warning" onClick={props.onGetAccess}>
-        Get access (1 hour)
+    <button className="btn btn-warning" onClick={props.onGetAccess} disabled={props.spinner}>
+        {props.spinner ? <i className="fas fa-spinner fa-spin"></i> : <span>Get access (1 hour)</span>}
     </button>
 
 

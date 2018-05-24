@@ -1,6 +1,7 @@
 var axios = require('axios');
 
-const API_URL = 'https://devfresh.bit-live.ru/base/adm/hs/serviceportalprivateapi'
+//const API_URL = 'https://devfresh.bit-live.ru/base/adm/hs/serviceportalprivateapi'
+const API_URL = 'https://online.accounting-software.ae/base/privateapi/hs/serviceportalprivateapi'
 
 class Requests {
     
@@ -134,6 +135,36 @@ class Requests {
         }
     
         return result.data.status === "ok"
+
+    }
+
+
+    gethistory = async () => {
+
+        console.log('Entered gethistory: ' + this.username)
+        
+
+        let result, status;
+    
+        try {
+            result = await axios.get(
+                API_URL + '/accesshistory',
+                {
+                    auth: {
+                        username: this.username,
+                        password: this.password
+                    },
+                    validateStatus: function (status) {
+                        return status >= 200;
+                    }
+                }
+            )
+            status = result.status
+        } catch(e) {
+            console.log('EXPC: ' + e)
+        }
+    
+        return result.data
 
     }
 
