@@ -9,18 +9,34 @@ class AccessHistory extends Component {
     getHistory = async () => {
 
         let response = await this.props.requests.gethistory()
-
-        //console.log(response)
-
         let history = response['payload']
 
         this.setState({
-            history: history
+            history: history,
+            needUpdate: false
         })
     }
 
     componentDidMount() {
         this.getHistory();
+    }
+
+    static getDerivedStateFromProps(props, state) {
+        if (props.updateHistory !== state.updateHistory) {
+            return {
+                history: [],
+                updateHistory: props.id,
+                needUpdate: true
+            };
+        }
+
+        return null;
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.state.needUpdate === true) {
+            this.getHistory();
+        }
     }
 
 

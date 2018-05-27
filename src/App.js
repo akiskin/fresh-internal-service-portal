@@ -12,7 +12,8 @@ class App extends Component {
     //username: 'testsupport',
     //password: 'P@ssw0rd'
     username: '',
-    password: ''
+    password: '',
+    updateHistory: 0
   }
 
   requestsSingleton = new Requests();
@@ -23,6 +24,10 @@ class App extends Component {
     e.preventDefault()
     this.requestsSingleton.setCredentials(this.state.username, this.state.password)
     this.setState({loggedIn: await this.requestsSingleton.login()})
+  }
+
+  updateHistoryCallback = () => {
+    this.setState({updateHistory: this.state.updateHistory+1})
   }
 
 
@@ -40,8 +45,8 @@ class App extends Component {
                                                                   onPasswordChange={this.onInputFieldChange("password")}
           />}
           
-          {this.state.loggedIn && <ClientLookup />}
-          {this.state.loggedIn && <AccessHistory />}
+          {this.state.loggedIn && <ClientLookup updateHistoryCallback={this.updateHistoryCallback}/>}
+          {this.state.loggedIn && <AccessHistory updateHistory={this.state.updateHistory}/>}
         </div>
       </GlobalContext.Provider>
     );
