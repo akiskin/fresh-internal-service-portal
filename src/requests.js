@@ -4,6 +4,9 @@ var axios = require('axios');
 const API_URL = 'https://online.accounting-software.ae/base/privateapi/hs/serviceportalprivateapi'
 
 class Requests {
+    constructor(app) {
+        this.app = app
+    } 
     
     setCredentials = (username, password) => {
         this.username = username;
@@ -109,9 +112,11 @@ class Requests {
     getaccess = async (id) => {
 
         console.log('Entered getaccess: ' + this.username)
-        
 
-        let result, status;
+        //MOCK
+        //return true
+
+        let result, status
     
         try {
             result = await axios.get(
@@ -164,39 +169,22 @@ class Requests {
             console.log('EXPC: ' + e)
         }
     
+        //MOCK
+        //return {payload: [{link: "some url", clientName: "some name"}]}
         return result.data
 
     }
 
-}
+    gethistorywrapper = async () => {
+        console.log('Entered gethistorywrapper: ' + this.username)
 
-export async function login(username, password) {
-
-    console.log('Entred login')
-
-    let result, status;
-
-    try {
-        result = await axios.get(
-            API_URL + '/authenticate',
-            {
-                auth: {
-                    username: username,
-                    password: password
-                },
-                validateStatus: function (status) {
-                    return status >= 200;
-                }
-            }
-        )
-        status = result.status
-    } catch(e) {
-        console.log('EXPC: ' + e)
+        let data = await this.gethistory()
+        
+        this.app.setState({
+            historyData: Array.isArray(data['payload']) ? data['payload'] : []
+        })
     }
 
-    return status === 200
-
 }
-
 
 export default Requests

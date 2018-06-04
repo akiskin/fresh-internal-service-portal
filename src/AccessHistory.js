@@ -2,43 +2,10 @@ import React, { Component, Fragment } from 'react';
 import {withGlobals} from './withGlobals.js'
 
 class AccessHistory extends Component {
-    state = {
-        history: [],
-    }
-
-    getHistory = async () => {
-
-        let response = await this.props.requests.gethistory()
-        let history = response['payload']
-
-        this.setState({
-            history: history,
-            needUpdate: false
-        })
-    }
 
     componentDidMount() {
-        this.getHistory();
+        this.props.requests.gethistorywrapper()
     }
-
-    static getDerivedStateFromProps(props, state) {
-        if (props.updateHistory !== state.updateHistory) {
-            return {
-                history: [],
-                updateHistory: props.id,
-                needUpdate: true
-            };
-        }
-
-        return null;
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (this.state.needUpdate === true) {
-            this.getHistory();
-        }
-    }
-
 
     render() {
         return(
@@ -47,7 +14,7 @@ class AccessHistory extends Component {
                 <h3 className="mt-3">History and current access</h3>
             </div>
             <div className="container">
-                {this.state.history.map(el => <HistoryEntry key={el.link} data={el}/>)}
+                {this.props.historyData.map(el => <HistoryEntry key={el.link} data={el}/>)}
             </div>
         </Fragment>)
     }

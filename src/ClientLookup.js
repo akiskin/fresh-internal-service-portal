@@ -71,7 +71,7 @@ class ClientLookup extends Component {
     refreshAfterAccessWasGranted = () => {
         this.onSelectClient(this.state.currentClientId)()
         this.setState({gettingAccess: null})
-        this.props.updateHistoryCallback()
+        this.props.requests.gethistorywrapper()
     }
 
     render() {
