@@ -66,12 +66,10 @@ const LoginForm = (props) =>
             <input type="password" value={props.password} className="form-control" id="inputPassword" placeholder="Password" onChange={props.onPasswordChange} />
           </div>
         </div>
-
         <button type="submit" className="btn btn-success">Login</button>
       </form>
     </div>
     <div className="col-3"></div>
   </div>
-
 
 export default App;

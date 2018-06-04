@@ -18,7 +18,6 @@ class AccessHistory extends Component {
             </div>
         </Fragment>)
     }
-
 }
 
 const HistoryEntry = (props) =>

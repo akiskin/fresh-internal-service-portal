@@ -14,12 +14,9 @@ class Requests {
     }
 
     login = async () => {
-
         console.log('Entered login: ' + this.username)
         
-
-        let result, status;
-    
+        let result, status
         try {
             result = await axios.get(
                 API_URL + '/authenticate',
@@ -41,17 +38,12 @@ class Requests {
         
         console.log('Login status: ' + status)
         return status === 200
-
     }
 
-
     clientlookup = async (pattern) => {
-
         console.log('Entered clientlookup: ' + this.username)
         
-
-        let result, status;
-    
+        let result
         try {
             result = await axios.get(
                 API_URL + '/clientlookup',
@@ -68,21 +60,17 @@ class Requests {
                     }
                 }
             )
-            status = result.status
         } catch(e) {
             console.log('EXPC: ' + e)
         }
     
         return result.data
-
     }  
     
     clientdbinfo = async (id) => {
-
         console.log('Entered clientdbinfo: ' + this.username)
         
-
-        let result, status;
+        let result
     
         try {
             result = await axios.get(
@@ -100,23 +88,19 @@ class Requests {
                     }
                 }
             )
-            status = result.status
         } catch(e) {
             console.log('EXPC: ' + e)
         }
     
         return result.data
-
     }    
 
     getaccess = async (id) => {
-
         console.log('Entered getaccess: ' + this.username)
-
         //MOCK
         //return true
 
-        let result, status
+        let result
     
         try {
             result = await axios.get(
@@ -134,22 +118,18 @@ class Requests {
                     }
                 }
             )
-            status = result.status
         } catch(e) {
             console.log('EXPC: ' + e)
         }
     
         return result.data.status === "ok"
-
     }
 
 
     gethistory = async () => {
-
         console.log('Entered gethistory: ' + this.username)
-        
 
-        let result, status;
+        let result;
     
         try {
             result = await axios.get(
@@ -164,7 +144,6 @@ class Requests {
                     }
                 }
             )
-            status = result.status
         } catch(e) {
             console.log('EXPC: ' + e)
         }
@@ -172,17 +151,13 @@ class Requests {
         //MOCK
         //return {payload: [{link: "some url", clientName: "some name"}]}
         return result.data
-
     }
 
     gethistorywrapper = async () => {
         console.log('Entered gethistorywrapper: ' + this.username)
 
         let data = await this.gethistory()
-        
-        this.app.setState({
-            historyData: Array.isArray(data['payload']) ? data['payload'] : []
-        })
+        this.app.setState({historyData: Array.isArray(data['payload']) ? data['payload'] : []})
     }
 
 }
