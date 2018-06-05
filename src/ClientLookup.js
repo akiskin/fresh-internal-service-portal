@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import {withGlobals} from './withGlobals.js'
+import {AccessLink, NoAccess} from './Primitives.js'
 
 class ClientLookup extends Component {
     state = {
@@ -141,7 +142,7 @@ const ClientInfo = (props) =>
         {props.data.filter(el => el.status === 1).map(el => <AppRow key={el.id} data={el} onGetAccess={props.onGetAccess(el.id)} spinner={el.id === props.gettingAccess}/>)}
     </Fragment>
 
-const AppRow = (props) =>
+const AppRow = withGlobals(props =>
     <div className="row mb-2 pb-1 border-bottom">
         <div className="col-3">
             <span className="align-middle">{props.data.name}</span>
@@ -153,19 +154,12 @@ const AppRow = (props) =>
             {props.data.accessGranted && <AccessLink appId={props.data.id} link={props.data.link}/>}
         </div>
         <div className="col-2">
-            {props.data.accessGranted ? <span className="align-middle">{'Access till: ' + (new Date(props.data.accessExpiryDate)).toLocaleDateString('en-GB', {hour: '2-digit', minute: '2-digit'})}</span> : <NoAccess onGetAccess={props.onGetAccess} spinner={props.spinner} />}
+            {props.data.accessGranted 
+                ? <span className="align-middle">{props.requests.accessExpiryDateString(props.data.accessExpiryDate)}</span> 
+                : <NoAccess onGetAccess={props.onGetAccess} spinner={props.spinner} />
+            }
         </div>
     </div>
-
-const AccessLink = withGlobals(props =>
-    <a href={props.link + "?N=" + props.requests.username + "&P=" + props.requests.password} className="btn btn-success" target="_blank" rel="noopener noreferrer">
-        Enter app
-    </a>)
-
-const NoAccess = (props) =>
-    <button className="btn btn-warning" onClick={props.onGetAccess} disabled={props.spinner}>
-        {props.spinner ? <i className="fas fa-spinner fa-spin"></i> : <span>Get access (1 hour)</span>}
-    </button>
-
+    )
 
 export default withGlobals(ClientLookup);

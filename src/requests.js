@@ -1,7 +1,7 @@
 var axios = require('axios');
 
-//const API_URL = 'https://devfresh.bit-live.ru/base/adm/hs/serviceportalprivateapi'
-const API_URL = 'https://online.accounting-software.ae/base/privateapi/hs/serviceportalprivateapi'
+const API_URL = 'https://devfresh.bit-live.ru/base/adm/hs/serviceportalprivateapi'
+//const API_URL = 'https://online.accounting-software.ae/base/privateapi/hs/serviceportalprivateapi'
 
 class Requests {
     constructor(app) {
@@ -77,6 +77,16 @@ class Requests {
         let data = await this.gethistory()
         if (data) {
             this.app.setState({historyData: Array.isArray(data['payload']) ? data['payload'] : []})
+        }
+    }
+
+
+    accessExpiryDateString = (date) => {
+        console.log('Got date: ' + date)
+        if (date === '') {
+            return 'Non-expiring'
+        } else {
+            return 'Access till: ' + (new Date(date)).toLocaleDateString('en-GB', {hour: '2-digit', minute: '2-digit'})
         }
     }
 

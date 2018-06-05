@@ -1,11 +1,27 @@
 import React, { Component, Fragment } from 'react';
 import {withGlobals} from './withGlobals.js'
+import {AccessLink, NoAccess} from './Primitives.js'
 
 class AccessHistory extends Component {
 
     componentDidMount() {
         this.props.requests.gethistorywrapper()
     }
+
+    onGetAccess = (id) => async () => {
+
+        console.log("Entered onGetAccess " + id)
+
+        this.props.requests.getaccesswrapper(
+            id, 
+            this.refreshAfterAccessWasGranted, 
+            () => this.setState({gettingAccess: null})
+        )
+    }
+
+    refreshAfterAccessWasGranted = () => {
+        this.props.requests.gethistorywrapper()
+    }    
 
     render() {
         return(
@@ -14,13 +30,17 @@ class AccessHistory extends Component {
                 <h3 className="mt-3">History and current access</h3>
             </div>
             <div className="container">
-                {this.props.historyData.map(el => <HistoryEntry key={el.link} data={el}/>)}
+                {this.props.historyData.map(el => <HistoryEntry 
+                                                    key={el.link} 
+                                                    data={el}
+                                                    onGetAccess={this.onGetAccess(el.id)}
+                                                    />)}
             </div>
         </Fragment>)
     }
 }
 
-const HistoryEntry = (props) =>
+const HistoryEntry = withGlobals(props =>
     <div className="row mb-2 pb-1 border-bottom">
         <div className="col-3">
             <span className="align-middle">{props.data.clientName}</span>
@@ -32,13 +52,12 @@ const HistoryEntry = (props) =>
             {props.data.accessGranted && <AccessLink link={props.data.link}/>}
         </div>
         <div className="col-2">
-            {props.data.accessGranted ? <span className="align-middle">{'Access till: ' + (new Date(props.data.accessExpiryDate)).toLocaleDateString('en-GB', {hour: '2-digit', minute: '2-digit'})}</span> : null}
+            {props.data.accessGranted 
+                ? <span className="align-middle">{props.requests.accessExpiryDateString(props.data.accessExpiryDate)}</span> 
+                : <NoAccess onGetAccess={props.onGetAccess} spinner={props.spinner} />
+            }
         </div>
     </div>
-
-const AccessLink = withGlobals(props =>
-    <a href={props.link + "?N=" + props.requests.username + "&P=" + props.requests.password} className="btn btn-success" target="_blank" rel="noopener noreferrer">
-        Enter app
-    </a>)
+    )
 
 export default withGlobals(AccessHistory);
