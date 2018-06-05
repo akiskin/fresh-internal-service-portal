@@ -7,7 +7,7 @@ export function withGlobals(Component) {
   return function WithGlobalsComponent(props) {
     return (
       <GlobalsContext.Consumer>
-        {requests => <Component {...props} requests={requests} />}
+        {value => <Component {...props} requests={value.requests} dict={value.dict} />}
       </GlobalsContext.Consumer>
     );
   };

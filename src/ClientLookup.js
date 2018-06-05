@@ -155,7 +155,7 @@ const AppRow = withGlobals(props =>
         </div>
         <div className="col-2">
             {props.data.accessGranted 
-                ? <span className="align-middle">{props.requests.accessExpiryDateString(props.data.accessExpiryDate)}</span> 
+                ? <span className="align-middle">{props.dict.accessExpiryDateString(props.data.accessExpiryDate)}</span> 
                 : <NoAccess onGetAccess={props.onGetAccess} spinner={props.spinner} />
             }
         </div>

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import Requests from './requests.js'
+import Dictionary from './dictionary.js'
 import ClientLookup from './ClientLookup.js'
 import AccessHistory from './AccessHistory.js'
 
@@ -16,7 +17,8 @@ class App extends Component {
     historyData: []
   }
 
-  requestsSingleton = new Requests(this);
+  requestsSingleton = new Requests(this)
+  dictionary = new Dictionary('en')
 
   onInputFieldChange = (inputName) => (e) => this.setState({[inputName]: e.target.value})
 
@@ -29,7 +31,7 @@ class App extends Component {
 
   render() {
     return (
-      <GlobalContext.Provider value={this.requestsSingleton}>
+      <GlobalContext.Provider value={{requests: this.requestsSingleton, dict: this.dictionary}}>
         <div className="container App">
           <h1 className="display-1">
             Internal Service Portal
