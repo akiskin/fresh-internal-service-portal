@@ -13,7 +13,7 @@ class ClientLookup extends Component {
 
     onPatternChange = (e) => this.setState({pattern: e.target.value})
 
-    onSearch = async (e) => {
+    onSearchSubmit = async (e) => {
         e.preventDefault()
 
         if (this.state.pattern.length <= 3) {
@@ -56,16 +56,12 @@ class ClientLookup extends Component {
         console.log("Entered onGetAccess " + id)
 
         this.setState({gettingAccess: id})
-        
-        let response = await this.props.requests.getaccess(id)
-        //let response = true
-        
-        if (response) {
-            setTimeout(this.refreshAfterAccessWasGranted, 20000)
-        } else {
-            this.setState({gettingAccess: null})
-        }
 
+        this.props.requests.getaccesswrapper(
+            id, 
+            this.refreshAfterAccessWasGranted, 
+            () => this.setState({gettingAccess: null})
+        )
     }
 
     refreshAfterAccessWasGranted = () => {
@@ -80,16 +76,11 @@ class ClientLookup extends Component {
             <div className="row">
                 <div className="col-3"></div>
                 <div className="col">
-                    <form onSubmit={this.onSearch}>
-                        <div className="mt-3 mb-3">
-                            <h3>Client Search</h3>
-                            <small>Search client list by name (at least 4 symbols required)</small>
-                        </div>
-                        <div className="form-group row">
-                            <input type="text" className="form-control" value={this.state.pattern} onChange={this.onPatternChange} pattern=".{4,}" required title="4 characters minimum"/>
-                         </div>
-                        <button type="submit" className="btn btn-success">Search</button>
-                    </form>
+                    <SearchForm 
+                        pattern={this.state.pattern}
+                        onPatternChange={this.onPatternChange}
+                        onSearchSubmit={this.onSearchSubmit}
+                    />
                 </div>
                 <div className="col-3"></div>
             </div>
@@ -112,6 +103,19 @@ class ClientLookup extends Component {
 
 
 }
+
+const SearchForm = (props) =>
+    <form onSubmit={props.onSearchSubmit}>
+        <div className="mt-3 mb-3">
+            <h3>Client Search</h3>
+            <small>Search client list by name (at least 4 symbols required)</small>
+        </div>
+        <div className="form-group row">
+            <input type="text" className="form-control" value={props.pattern} onChange={props.onPatternChange} pattern=".{4,}" required title="4 characters minimum"/>
+        </div>
+        <button type="submit" className="btn btn-success">Search</button>
+    </form>
+
 
 const ClientsFoundHeader = () =>
     <div className="mt-3 mb-3">

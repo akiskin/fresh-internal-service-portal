@@ -125,6 +125,12 @@ class Requests {
         return result.data.status === "ok"
     }
 
+    getaccesswrapper = async(id, callback, reject) => {
+        console.log('Entered getaccesswrapper: ' + this.username)
+        let result = await this.getaccess(id)
+        result ? setTimeout(callback, 20000) : reject()
+    }
+
 
     gethistory = async () => {
         console.log('Entered gethistory: ' + this.username)
