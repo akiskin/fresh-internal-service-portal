@@ -31,12 +31,14 @@ class ClientLookup extends Component {
 
         //console.log(response)
 
-        let clients = response['payload']
+        if (response) {
+            let clients = response['payload']
 
-        this.setState({
-            fetching: false,
-            clients: Array.isArray(clients) ? clients : []
-        })
+            this.setState({
+                fetching: false,
+                clients: Array.isArray(clients) ? clients : []
+            })
+        }
     }
 
     onSelectClient = (id) => async () => {
@@ -45,10 +47,12 @@ class ClientLookup extends Component {
 
         let response = await this.props.requests.clientdbinfo(id)
         
-        this.setState({
-            currentClientId: id,
-            currentClientData: response['payload']
-        })
+        if (response) {
+            this.setState({
+                currentClientId: id,
+                currentClientData: response['payload']
+            })
+        }
     }
 
     onGetAccess = (id) => async () => {
