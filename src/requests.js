@@ -1,7 +1,7 @@
 var axios = require('axios');
 
-const API_URL = 'https://devfresh.bit-live.ru/base/adm/hs/serviceportalprivateapi'
-//const API_URL = 'https://online.accounting-software.ae/base/privateapi/hs/serviceportalprivateapi'
+//const API_URL = 'https://devfresh.bit-live.ru/base/adm/hs/serviceportalprivateapi'
+const API_URL = 'https://online.accounting-software.ae/base/privateapi/hs/serviceportalprivateapi'
 
 class Requests {
     constructor(app) {
@@ -56,6 +56,7 @@ class Requests {
     getaccess = async (id) => {
         let result = await this.get('/getaccess', {id: id})
         return result ? result.data.status === "ok" : false
+        //return true
     }
 
     getaccesswrapper = async(id, callback, reject) => {

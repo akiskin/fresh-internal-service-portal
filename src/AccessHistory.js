@@ -3,6 +3,9 @@ import {withGlobals} from './withGlobals.js'
 import {AccessLink, NoAccess} from './Primitives.js'
 
 class AccessHistory extends Component {
+    state = {
+        gettingAccess: null
+    }
 
     componentDidMount() {
         this.props.requests.gethistorywrapper()
@@ -12,6 +15,8 @@ class AccessHistory extends Component {
 
         console.log("Entered onGetAccess " + id)
 
+        this.setState({gettingAccess: id})
+
         this.props.requests.getaccesswrapper(
             id, 
             this.refreshAfterAccessWasGranted, 
@@ -20,6 +25,7 @@ class AccessHistory extends Component {
     }
 
     refreshAfterAccessWasGranted = () => {
+        this.setState({gettingAccess: null})
         this.props.requests.gethistorywrapper()
     }    
 
@@ -34,6 +40,7 @@ class AccessHistory extends Component {
                                                     key={el.link} 
                                                     data={el}
                                                     onGetAccess={this.onGetAccess(el.id)}
+                                                    spinner={this.state.gettingAccess === el.id}
                                                     />)}
             </div>
         </Fragment>)
